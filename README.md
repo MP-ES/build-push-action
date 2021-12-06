@@ -42,7 +42,7 @@ Composite action to build and push docker image into docker registry in the expe
 
 ### Simplified use
 
-If you have a Dockerfile in the root path with no build args and want to build and push the docker image to a private registry you can just write:
+If you have a Dockerfile in the root path with no build args and want to build and push the docker image to a private registry you can write something such as:
 
 ```yaml
 - name: Build and push docker image
@@ -58,6 +58,8 @@ If you have a Dockerfile in the root path with no build args and want to build a
 
 Following outputs are available:
 
-| Name  | Type   | Description                  |
-| ----- | ------ | ---------------------------- |
-| `tag` | String | Tag assigned to docker image |
+| Name       | Type   | Description                                               |
+| ---------- | ------ | --------------------------------------------------------- |
+| `tag`      | String | Tag assigned to docker image                              |
+| `digest`   | String | Image content-addressable identifier also called a digest |
+| `metadata` | JSON   | Build result metadata                                     |
