@@ -1,4 +1,4 @@
-name: Build and push Docker images
+name: Build and push Docker images to be used in On-Premises Kubernetes cluster
 description: "Build and push docker image into docker registry in the expected format of on-premises k8s-deploy"
 author: MP-ES
 branding:
