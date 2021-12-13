@@ -26,6 +26,9 @@ Composite action to build and push docker image into docker registry in the expe
       arg1=value1
       arg2=value2
 
+    # Relative path under $GITHUB_WORKSPACE to place the repository checkout code
+    checkout-path: "."
+
     # Build's context is the set of files located in the specified PATH or URL
     context: "."
 
