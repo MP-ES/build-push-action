@@ -18,6 +18,9 @@ inputs:
   build-args:
     description: "List of build-time variables"
     required: false
+  checkout-path:
+    description: "Relative path under $GITHUB_WORKSPACE to place the repository checkout code"
+    required: false
   context:
     description: "Build's context is the set of files located in the specified PATH or URL"
     required: false
@@ -58,6 +61,8 @@ runs:
       run: echo "::set-output name=value::${{ env.registry }}/${{ github.event.repository.name }}/${{ env.image }}:${{ steps.commit_hash.outputs.value }}"
       shell: bash
     - uses: actions/checkout@v2
+      with:
+        path: ${{ inputs.checkout-path }}
     - name: Login to Docker Registry
       uses: docker/login-action@v1
       with:
