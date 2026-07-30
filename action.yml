@@ -21,6 +21,10 @@ inputs:
   checkout-path:
     description: 'Relative path under $GITHUB_WORKSPACE to place the repository checkout code'
     required: false
+  skip-checkout:
+    description: 'Skip the action-clean and checkout steps (use when code is already checked out)'
+    required: false
+    default: 'false'
   context:
     description: "Build's context is the set of files located in the specified PATH or URL"
     required: false
@@ -49,6 +53,7 @@ runs:
 
   steps:
     - uses: AutoModality/action-clean@v1
+      if: ${{ inputs.skip-checkout != 'true' }}
 
     - run: ${{ github.action_path }}/validate.sh
       shell: bash
@@ -66,6 +71,7 @@ runs:
       shell: bash
 
     - uses: actions/checkout@v6
+      if: ${{ inputs.skip-checkout != 'true' }}
       with:
         path: ${{ inputs.checkout-path }}
 
