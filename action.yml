@@ -1,55 +1,55 @@
 name: Build and push Docker images to be used in On-Premises Kubernetes cluster
-description: 'Build and push docker image into docker registry in the expected format of on-premises k8s-deploy'
+description: "Build and push docker image into docker registry in the expected format of on-premises k8s-deploy"
 author: MP-ES
 branding:
-  icon: 'anchor'
-  color: 'purple'
+  icon: "anchor"
+  color: "purple"
 inputs:
   registry:
-    description: 'Server address of Docker registry. If not set then will default to Docker Hub'
+    description: "Server address of Docker registry. If not set then will default to Docker Hub"
     required: false
-    default: 'hub.docker.com'
+    default: "hub.docker.com"
   username:
-    description: 'Username used to log against the Docker registry'
+    description: "Username used to log against the Docker registry"
     required: false
   password:
-    description: 'Password or personal access token used to log against the Docker registry'
+    description: "Password or personal access token used to log against the Docker registry"
     required: false
   build-args:
-    description: 'List of build-time variables'
+    description: "List of build-time variables"
     required: false
   checkout-path:
-    description: 'Relative path under $GITHUB_WORKSPACE to place the repository checkout code'
+    description: "Relative path under $GITHUB_WORKSPACE to place the repository checkout code"
     required: false
   skip-checkout:
-    description: 'Skip the action-clean and checkout steps (use when code is already checked out)'
+    description: "Skip the action-clean and checkout steps (use when code is already checked out)"
     required: false
-    default: 'false'
+    default: "false"
   context:
     description: "Build's context is the set of files located in the specified PATH or URL"
     required: false
   file:
-    description: 'Path to the Dockerfile'
+    description: "Path to the Dockerfile"
     required: false
   image:
-    description: 'The name of docker image'
+    description: "The name of docker image"
     required: true
   push:
-    description: 'Control if the image have to be pushed to the registry'
+    description: "Control if the image have to be pushed to the registry"
     required: false
-    default: 'true'
+    default: "true"
 outputs:
   tag:
-    description: 'Tag assigned to docker image'
+    description: "Tag assigned to docker image"
     value: ${{ steps.tag.outputs.value }}
   digest:
-    description: 'Image content-addressable identifier also called a digest'
+    description: "Image content-addressable identifier also called a digest"
     value: ${{ steps.build.outputs.digest }}
   metadata:
-    description: 'Build result metadata'
+    description: "Build result metadata"
     value: ${{ steps.build.outputs.metadata }}
 runs:
-  using: 'composite'
+  using: "composite"
 
   steps:
     - uses: AutoModality/action-clean@v1
@@ -70,7 +70,7 @@ runs:
       run: echo "value=${{ env.registry }}/${{ github.event.repository.name }}/${{ env.image }}:${{ steps.commit_hash.outputs.value }}" >>$GITHUB_OUTPUT
       shell: bash
 
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       if: ${{ inputs.skip-checkout != 'true' }}
       with:
         path: ${{ inputs.checkout-path }}
