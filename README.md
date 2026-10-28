@@ -26,6 +26,16 @@ Composite action to build and push docker image into docker registry in the expe
       arg1=value1
       arg2=value2
 
+    # List of secrets to expose to the build, consumed in the Dockerfile
+    # with RUN --mount=type=secret,id=NPM_TOKEN
+    secrets: |
+      NPM_TOKEN=${{ secrets.NPM_TOKEN }}
+
+    # List of external cache sources and export destinations for buildx
+    # (keeps the layer cache in the registry, shared between runners)
+    cache-from: type=registry,ref=registry.domain.com/project/service:cache
+    cache-to: type=registry,ref=registry.domain.com/project/service:cache,mode=max
+
     # Relative path under $GITHUB_WORKSPACE to place the repository checkout code
     checkout-path: "."
 
