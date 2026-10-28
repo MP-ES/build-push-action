@@ -18,6 +18,15 @@ inputs:
   build-args:
     description: "List of build-time variables"
     required: false
+  secrets:
+    description: "List of secrets to expose to the build (e.g., key=string, GIT_AUTH_TOKEN=mytoken), consumed in the Dockerfile with RUN --mount=type=secret"
+    required: false
+  cache-from:
+    description: "List of external cache sources for buildx (e.g., type=registry,ref=user/app:cache)"
+    required: false
+  cache-to:
+    description: "List of cache export destinations for buildx (e.g., type=registry,ref=user/app:cache,mode=max)"
+    required: false
   checkout-path:
     description: "Relative path under $GITHUB_WORKSPACE to place the repository checkout code"
     required: false
@@ -91,3 +100,6 @@ runs:
         file: ${{ inputs.file }}
         push: ${{ env.push }}
         build-args: ${{ inputs.build-args }}
+        secrets: ${{ inputs.secrets }}
+        cache-from: ${{ inputs.cache-from }}
+        cache-to: ${{ inputs.cache-to }}
