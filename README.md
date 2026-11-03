@@ -26,6 +26,19 @@ Composite action to build and push docker image into docker registry in the expe
       arg1=value1
       arg2=value2
 
+    # List of secrets to expose to the build, consumed in the Dockerfile
+    # with RUN --mount=type=secret,id=NPM_TOKEN
+    secrets: |
+      NPM_TOKEN=${{ secrets.NPM_TOKEN }}
+
+    # List of external cache sources and export destinations for buildx
+    # (keeps the layer cache in the registry, shared between runners).
+    # When cache-to is set, the action automatically sets up a buildx
+    # builder that supports cache export. With push: "true" (the default),
+    # the image is pushed to the registry, not loaded into the local engine.
+    cache-from: type=registry,ref=registry.example.com/project/service:cache
+    cache-to: type=registry,ref=registry.example.com/project/service:cache,mode=max
+
     # Relative path under $GITHUB_WORKSPACE to place the repository checkout code
     checkout-path: "."
 
@@ -42,6 +55,41 @@ Composite action to build and push docker image into docker registry in the expe
     # DEFAULT: true
     push: "true"
 ```
+
+### Cache
+
+Registry caching lets Buildx reuse layers from previous builds, including when
+a different runner handles the next build. See Docker's
+[registry cache backend documentation](https://docs.docker.com/build/cache/backends/registry/)
+for details.
+
+#### Example: `sample-project` repository and `web-app` image
+
+```yaml
+- name: Build and push image
+  uses: MP-ES/build-push-action@v1
+  with:
+    registry: registry.example.com
+    username: ${{ secrets.REGISTRY_USERNAME }}
+    password: ${{ secrets.REGISTRY_PASSWORD }}
+    image: web-app
+    cache-from: type=registry,ref=registry.example.com/sample-project/web-app:buildcache
+    cache-to: type=registry,ref=registry.example.com/sample-project/web-app:buildcache,mode=max
+```
+
+Assume the GitHub repository is named `sample-project`. The action publishes
+the image as `registry.example.com/sample-project/web-app:<commit-sha>`.
+`registry.example.com` is a fictional registry hostname; replace it with yours.
+
+- `cache-from` reads reusable layers from
+  `registry.example.com/sample-project/web-app:buildcache`.
+- `cache-to` saves this build's layers to the same cache reference. `mode=max`
+  also includes intermediate stages in multi-stage builds.
+
+The `:buildcache` tag is a separate registry reference for cache data, not the
+image tag ending in the commit SHA. Using the same cache reference for both
+settings lets each build read and refresh the shared cache. The registry
+credentials must allow reading and writing it.
 
 ### Simplified use
 
