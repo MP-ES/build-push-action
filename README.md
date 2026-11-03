@@ -36,8 +36,8 @@ Composite action to build and push docker image into docker registry in the expe
     # When cache-to is set, the action automatically sets up a buildx
     # builder that supports cache export. With push: "true" (the default),
     # the image is pushed to the registry, not loaded into the local engine.
-    cache-from: type=registry,ref=registry.domain.com/project/service:cache
-    cache-to: type=registry,ref=registry.domain.com/project/service:cache,mode=max
+    cache-from: type=registry,ref=registry.example.com/project/service:cache
+    cache-to: type=registry,ref=registry.example.com/project/service:cache,mode=max
 
     # Relative path under $GITHUB_WORKSPACE to place the repository checkout code
     checkout-path: "."
@@ -81,6 +81,25 @@ writing that reference.
 image, which can improve reuse in multi-stage Dockerfiles. With `push: "true"`
 (the default), the final image is pushed to the registry; the Buildx builder
 does not load it into the local Docker engine.
+
+#### Example
+
+Suppose your registry is `registry.example.com` and the image is for the
+`gampes/frontend` service. Configure the cache to use a separate `buildcache`
+tag in that registry:
+
+```yaml
+registry: registry.example.com
+image: frontend
+cache-from: type=registry,ref=registry.example.com/gampes/frontend:buildcache
+cache-to: type=registry,ref=registry.example.com/gampes/frontend:buildcache,mode=max
+```
+
+`registry.example.com` is fictional; replace it with the same registry
+hostname you provide to `registry`. The path `gampes/frontend` identifies the
+cache location, and `:buildcache` is its tag. This cache reference is separate
+from the image tag that the action creates and pushes. The registry credentials
+must have permission to read and write the cache reference.
 
 ### Simplified use
 
