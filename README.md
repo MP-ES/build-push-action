@@ -58,36 +58,12 @@ Composite action to build and push docker image into docker registry in the expe
 
 ### Cache
 
-`cache-from` tells Buildx where to look for layers from earlier builds.
-`cache-to` tells it where to save layers from the current build. In this example,
-the registry reference ending in `:cache` is a separate cache artifact, not the
-image tag produced by this action.
+`cache-from` reads reusable layers from a previous build; `cache-to` saves
+layers for later builds. A registry cache lets different runners share those
+layers. For details, see Docker's
+[registry cache backend documentation](https://docs.docker.com/build/cache/backends/registry/).
 
-On the first build, there may be no cache to import, so the build runs normally
-and exports a cache. Later builds can reuse matching layers from that cache.
-For example, with multiple self-hosted runners, each run can import and update
-the same registry cache, even when a different runner handles the job. This is
-useful for expensive, unchanged Dockerfile steps such as installing
-dependencies. A cache hit depends on the step's inputs being unchanged; the
-cache does not skip steps whose inputs have changed.
-
-Use the same cache reference for `cache-from` and `cache-to` when you want each
-build to use and refresh one shared cache. Give each image or service its own
-cache reference so unrelated builds do not overwrite or compete for the same
-cache. The registry credentials supplied to this action must allow reading and
-writing that reference.
-
-`mode=max` exports cache for intermediate build stages as well as the final
-image, which can improve reuse in multi-stage Dockerfiles. With `push: "true"`
-(the default), the final image is pushed to the registry; the Buildx builder
-does not load it into the local Docker engine.
-
-#### Example: application image
-
-For a repository named `sample-project` building an image named `web-app`, the
-action publishes an image such as
-`registry.example.com/sample-project/web-app:<commit-sha>`. Use a separate tag,
-`buildcache`, for the cache:
+#### Example
 
 ```yaml
 registry: registry.example.com
@@ -96,19 +72,10 @@ cache-from: type=registry,ref=registry.example.com/sample-project/web-app:buildc
 cache-to: type=registry,ref=registry.example.com/sample-project/web-app:buildcache,mode=max
 ```
 
-In both cache settings, `type=registry` says to store the cache in a container
-registry, and `ref=` gives the cache's registry path and tag:
-`registry.example.com/sample-project/web-app:buildcache`.
-
-- `cache-from` reads previously saved layers from that reference at the start
-  of the build, so matching build steps can be reused.
-- `cache-to` writes this build's cache back to the same reference. `mode=max`
-  includes intermediate stages as well as the final stage, which can help
-  multi-stage Dockerfiles.
-
-The cache reference is separate from the image tag, which ends in the commit
-SHA. `registry.example.com` is fictional; replace it with your registry
-hostname. The registry credentials must allow reading and writing the cache.
+`type=registry` selects the registry backend, and `ref` is the cache location.
+The `:buildcache` tag is separate from the image tag. `mode=max` also caches
+intermediate build stages. Replace the fictional hostname with your registry;
+its credentials must allow reading and writing this cache.
 
 ### Simplified use
 
