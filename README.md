@@ -82,23 +82,23 @@ image, which can improve reuse in multi-stage Dockerfiles. With `push: "true"`
 (the default), the final image is pushed to the registry; the Buildx builder
 does not load it into the local Docker engine.
 
-#### Example: frontend service
+#### Example: application image
 
-For a repository named `gampes` building the `frontend` image, the action
-publishes an image such as
-`registry.example.com/gampes/frontend:<commit-sha>`. Use a separate tag,
+For a repository named `sample-project` building an image named `web-app`, the
+action publishes an image such as
+`registry.example.com/sample-project/web-app:<commit-sha>`. Use a separate tag,
 `buildcache`, for the cache:
 
 ```yaml
 registry: registry.example.com
-image: frontend
-cache-from: type=registry,ref=registry.example.com/gampes/frontend:buildcache
-cache-to: type=registry,ref=registry.example.com/gampes/frontend:buildcache,mode=max
+image: web-app
+cache-from: type=registry,ref=registry.example.com/sample-project/web-app:buildcache
+cache-to: type=registry,ref=registry.example.com/sample-project/web-app:buildcache,mode=max
 ```
 
 In both cache settings, `type=registry` says to store the cache in a container
 registry, and `ref=` gives the cache's registry path and tag:
-`registry.example.com/gampes/frontend:buildcache`.
+`registry.example.com/sample-project/web-app:buildcache`.
 
 - `cache-from` reads previously saved layers from that reference at the start
   of the build, so matching build steps can be reused.
