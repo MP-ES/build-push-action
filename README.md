@@ -58,24 +58,38 @@ Composite action to build and push docker image into docker registry in the expe
 
 ### Cache
 
-`cache-from` reads reusable layers from a previous build; `cache-to` saves
-layers for later builds. A registry cache lets different runners share those
-layers. For details, see Docker's
-[registry cache backend documentation](https://docs.docker.com/build/cache/backends/registry/).
+Registry caching lets Buildx reuse layers from previous builds, including when
+a different runner handles the next build. See Docker's
+[registry cache backend documentation](https://docs.docker.com/build/cache/backends/registry/)
+for details.
 
-#### Example
+#### Example: `sample-project` repository and `web-app` image
 
 ```yaml
-registry: registry.example.com
-image: web-app
-cache-from: type=registry,ref=registry.example.com/sample-project/web-app:buildcache
-cache-to: type=registry,ref=registry.example.com/sample-project/web-app:buildcache,mode=max
+- name: Build and push image
+  uses: MP-ES/build-push-action@v1
+  with:
+    registry: registry.example.com
+    username: ${{ secrets.REGISTRY_USERNAME }}
+    password: ${{ secrets.REGISTRY_PASSWORD }}
+    image: web-app
+    cache-from: type=registry,ref=registry.example.com/sample-project/web-app:buildcache
+    cache-to: type=registry,ref=registry.example.com/sample-project/web-app:buildcache,mode=max
 ```
 
-`type=registry` selects the registry backend, and `ref` is the cache location.
-The `:buildcache` tag is separate from the image tag. `mode=max` also caches
-intermediate build stages. Replace the fictional hostname with your registry;
-its credentials must allow reading and writing this cache.
+Assume the GitHub repository is named `sample-project`. The action publishes
+the image as `registry.example.com/sample-project/web-app:<commit-sha>`.
+`registry.example.com` is a fictional registry hostname; replace it with yours.
+
+- `cache-from` reads reusable layers from
+  `registry.example.com/sample-project/web-app:buildcache`.
+- `cache-to` saves this build's layers to the same cache reference. `mode=max`
+  also includes intermediate stages in multi-stage builds.
+
+The `:buildcache` tag is a separate registry reference for cache data, not the
+image tag ending in the commit SHA. Using the same cache reference for both
+settings lets each build read and refresh the shared cache. The registry
+credentials must allow reading and writing it.
 
 ### Simplified use
 
