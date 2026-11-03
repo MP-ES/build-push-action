@@ -34,8 +34,8 @@ Composite action to build and push docker image into docker registry in the expe
     # List of external cache sources and export destinations for buildx
     # (keeps the layer cache in the registry, shared between runners).
     # When cache-to is set, the action automatically sets up a buildx
-    # builder that supports cache export, and the image is pushed straight
-    # to the registry (it won't appear in the local Docker engine).
+    # builder that supports cache export. With push: "true" (the default),
+    # the image is pushed to the registry, not loaded into the local engine.
     cache-from: type=registry,ref=registry.domain.com/project/service:cache
     cache-to: type=registry,ref=registry.domain.com/project/service:cache,mode=max
 
@@ -55,6 +55,32 @@ Composite action to build and push docker image into docker registry in the expe
     # DEFAULT: true
     push: "true"
 ```
+
+### Cache
+
+`cache-from` tells Buildx where to look for layers from earlier builds.
+`cache-to` tells it where to save layers from the current build. In this example,
+the registry reference ending in `:cache` is a separate cache artifact, not the
+image tag produced by this action.
+
+On the first build, there may be no cache to import, so the build runs normally
+and exports a cache. Later builds can reuse matching layers from that cache.
+For example, with multiple self-hosted runners, each run can import and update
+the same registry cache, even when a different runner handles the job. This is
+useful for expensive, unchanged Dockerfile steps such as installing
+dependencies. A cache hit depends on the step's inputs being unchanged; the
+cache does not skip steps whose inputs have changed.
+
+Use the same cache reference for `cache-from` and `cache-to` when you want each
+build to use and refresh one shared cache. Give each image or service its own
+cache reference so unrelated builds do not overwrite or compete for the same
+cache. The registry credentials supplied to this action must allow reading and
+writing that reference.
+
+`mode=max` exports cache for intermediate build stages as well as the final
+image, which can improve reuse in multi-stage Dockerfiles. With `push: "true"`
+(the default), the final image is pushed to the registry; the Buildx builder
+does not load it into the local Docker engine.
 
 ### Simplified use
 
