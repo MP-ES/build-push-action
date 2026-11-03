@@ -82,11 +82,12 @@ image, which can improve reuse in multi-stage Dockerfiles. With `push: "true"`
 (the default), the final image is pushed to the registry; the Buildx builder
 does not load it into the local Docker engine.
 
-#### Example
+#### Example: frontend service
 
-Suppose your registry is `registry.example.com` and the image is for the
-`gampes/frontend` service. Configure the cache to use a separate `buildcache`
-tag in that registry:
+For a repository named `gampes` building the `frontend` image, the action
+publishes an image such as
+`registry.example.com/gampes/frontend:<commit-sha>`. Use a separate tag,
+`buildcache`, for the cache:
 
 ```yaml
 registry: registry.example.com
@@ -95,11 +96,19 @@ cache-from: type=registry,ref=registry.example.com/gampes/frontend:buildcache
 cache-to: type=registry,ref=registry.example.com/gampes/frontend:buildcache,mode=max
 ```
 
-`registry.example.com` is fictional; replace it with the same registry
-hostname you provide to `registry`. The path `gampes/frontend` identifies the
-cache location, and `:buildcache` is its tag. This cache reference is separate
-from the image tag that the action creates and pushes. The registry credentials
-must have permission to read and write the cache reference.
+In both cache settings, `type=registry` says to store the cache in a container
+registry, and `ref=` gives the cache's registry path and tag:
+`registry.example.com/gampes/frontend:buildcache`.
+
+- `cache-from` reads previously saved layers from that reference at the start
+  of the build, so matching build steps can be reused.
+- `cache-to` writes this build's cache back to the same reference. `mode=max`
+  includes intermediate stages as well as the final stage, which can help
+  multi-stage Dockerfiles.
+
+The cache reference is separate from the image tag, which ends in the commit
+SHA. `registry.example.com` is fictional; replace it with your registry
+hostname. The registry credentials must allow reading and writing the cache.
 
 ### Simplified use
 
