@@ -91,6 +91,12 @@ runs:
         username: ${{ inputs.username }}
         password: ${{ inputs.password }}
 
+    # Cache export (cache-to) is not supported by the default docker driver,
+    # so a docker-container builder is required when cache-to is set
+    - name: Set up Docker Buildx
+      if: ${{ inputs.cache-to != '' }}
+      uses: docker/setup-buildx-action@v4
+
     - name: Build and Push
       id: build
       uses: docker/build-push-action@v7

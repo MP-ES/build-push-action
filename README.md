@@ -32,7 +32,11 @@ Composite action to build and push docker image into docker registry in the expe
       NPM_TOKEN=${{ secrets.NPM_TOKEN }}
 
     # List of external cache sources and export destinations for buildx
-    # (keeps the layer cache in the registry, shared between runners)
+    # (keeps the layer cache in the registry, shared between runners).
+    # When cache-to is set, the action sets up a docker-container buildx
+    # builder, as cache export is not supported by the default docker driver.
+    # Note: with this builder, when push is "false" the built image is not
+    # loaded into the local Docker engine.
     cache-from: type=registry,ref=registry.domain.com/project/service:cache
     cache-to: type=registry,ref=registry.domain.com/project/service:cache,mode=max
 
